@@ -6,7 +6,9 @@ import {
   HttpStatus,
   Post,
   Res,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { AuthCredentialsDto } from './dto/auth-credentials-dto';
 import { CreateUserDto } from './dto/create-user-dto';
 import { UserService } from './user.service';
@@ -43,11 +45,11 @@ export class UserController {
     try {
       const result = await this.userService.signIn(authCredentialsDto);
 
-      response.status(HttpStatus.ACCEPTED).json({ message: result });
+      response.status(HttpStatus.ACCEPTED).json({ result });
     } catch (error) {
       response
         .status(HttpStatus.UNAUTHORIZED)
-        .json({ message: 'Unauthorized access' });
+        .json({ message: 'Unauthorized access', error });
     }
   }
 
@@ -62,5 +64,11 @@ export class UserController {
     } catch (err) {
       response.json({ message: 'Internal Error', err });
     }
+  }
+
+  @Get('/test')
+  @UseGuards(AuthGuard())
+  exampleRoute() {
+    return 'Protected route';
   }
 }
