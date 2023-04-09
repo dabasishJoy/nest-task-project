@@ -7,6 +7,7 @@ import {
   Post,
   Res,
 } from '@nestjs/common';
+import { AuthCredentialsDto } from './dto/auth-credentials-dto';
 import { CreateUserDto } from './dto/create-user-dto';
 import { UserService } from './user.service';
 
@@ -17,7 +18,7 @@ export class UserController {
 
   // create user
   @Post('/signup')
-  async createUser(@Body() createUserDto: CreateUserDto, @Res() response) {
+  async signIn(@Body() createUserDto: CreateUserDto, @Res() response) {
     try {
       // await createUserDto.validate();
       const result = await this.userService.createUser(createUserDto);
@@ -31,6 +32,22 @@ export class UserController {
           .status(HttpStatus.INTERNAL_SERVER_ERROR)
           .json({ message: 'Internal Error', err });
       }
+    }
+  }
+
+  @Post('/signin')
+  async signUp(
+    @Body() authCredentialsDto: AuthCredentialsDto,
+    @Res() response,
+  ) {
+    try {
+      const result = await this.userService.signIn(authCredentialsDto);
+
+      response.status(HttpStatus.ACCEPTED).json({ message: result });
+    } catch (error) {
+      response
+        .status(HttpStatus.UNAUTHORIZED)
+        .json({ message: 'Unauthorized access' });
     }
   }
 
