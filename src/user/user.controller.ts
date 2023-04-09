@@ -1,4 +1,12 @@
-import { Body, Controller, Get, HttpStatus, Post, Res } from '@nestjs/common';
+import {
+  Body,
+  ConflictException,
+  Controller,
+  Get,
+  HttpStatus,
+  Post,
+  Res,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user-dto';
 import { UserService } from './user.service';
 
@@ -8,13 +16,21 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   // create user
-  @Post()
+  @Post('/signup')
   async createUser(@Body() createUserDto: CreateUserDto, @Res() response) {
     try {
+      // await createUserDto.validate();
       const result = await this.userService.createUser(createUserDto);
       response.status(HttpStatus.CREATED).json({ message: 'Success', result });
     } catch (err) {
-      return response.json({ message: 'Internal Error', err });
+      console.log(err);
+      if (err instanceof ConflictException) {
+        response.status(HttpStatus.CONFLICT).json({ message: err.message });
+      } else {
+        response
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ message: 'Internal Error', err });
+      }
     }
   }
 
