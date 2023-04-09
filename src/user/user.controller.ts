@@ -55,6 +55,7 @@ export class UserController {
 
   // get all users
   @Get()
+  @UseGuards(AuthGuard())
   async getUsers(@Res() response) {
     try {
       const users = await this.userService.getUsers();
